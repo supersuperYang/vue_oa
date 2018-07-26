@@ -2,10 +2,11 @@
     <div class="home">
       <el-container>
           <!-- 侧边栏 -->
-            <el-aside width="200px">
+            <el-aside width="auto">
                 <div class="logo"></div>
                 <el-menu
                 default-active="2"
+                :collapse="isCollapse"
                 class="el-menu-admin"
                 @open="handleOpen"
                 @close="handleClose"
@@ -25,8 +26,20 @@
                 </el-menu>
             </el-aside>
             <el-container>
-                <el-header>Header</el-header>
-                <el-main>Main</el-main>
+                <!-- header部分 -->
+                <el-header>
+                    <i class="myicon myicon-menu toggle-btn" @click="toggleCollapse"></i>
+                    <div class="system-title">电商管理系统</div>
+                    <div>
+                        <span class="welcome">
+                            您好,xxx
+                        </span>
+                        <el-button type="text" @click="logout">退出</el-button>
+                    </div>
+                </el-header>
+                <el-main>
+                    <router-view></router-view>
+                </el-main>
             </el-container>
         </el-container>
     </div>
@@ -36,12 +49,27 @@
 import { getUserList } from "@/api";
 
 export default {
+    data(){
+        return {
+            isCollapse:false
+        }
+    },
     methods: {
-    handleOpen(key, keyPath) {
-        console.log(key, keyPath)
+        handleOpen(key, keyPath) {
+            console.log(key, keyPath)
+            },
+        handleClose(key, keyPath) {
+            console.log(key, keyPath)
+            },
+        toggleCollapse(){
+            this.isCollapse = !this.isCollapse
         },
-    handleClose(key, keyPath) {
-        console.log(key, keyPath)
+        logout(){
+            //清除localStorage和登陆状态
+            localStorage.removeItem('mytoken')
+            //跳转登陆页面
+            this.$router.push({name:'Login'})
+
         }
     },
     mounted() {
