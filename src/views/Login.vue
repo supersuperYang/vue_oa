@@ -46,11 +46,12 @@ export default {
     methods: {
       loginSubmit(formName) {
         this.$refs[formName].validate((valid) => {
-            //只有校验通过才执行函数
+            //只有校验通过才执行函数 
           if (valid) {
             checkUser(this.form).then(res => {
+                //将token保存到localStorage里面
                 if(res.meta.status === 200){
-                    console.log('1')
+                    localStorage.setItem('mytoken', res.data.token)
                     this.$router.push({name:'Home'})
                 }else{
                     this.$message({
