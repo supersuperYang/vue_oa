@@ -13,61 +13,61 @@
                 <el-input v-model="form.password" placeholder="密码" prefix-icon="myicon myicon-key"></el-input>
             </el-form-item>
             <el-form-item>
-            <el-button type="primary" class="login-btn" @click="loginSubmit('form')">登陆</el-button>
+                <el-button type="primary" class="login-btn" @click="loginSubmit('form')">登陆</el-button>
             </el-form-item>
-        </el-form>    
+        </el-form>
     </div>
-    
+
 </template>
            
 <script>
-import {checkUser} from '@/api'
+import { checkUser } from "@/api";
 
 export default {
-    data() {
-        return {
-            form: {
-                username: '',
-                password:'',
-            },
-            rules: {
-            username: [
-                { required: true, message: '请输入账号', trigger: 'blur' },
-                { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-            ],
-            password: [
-                { required: true, message: '请输入密码', trigger: 'blur' },
-                { min: 3, max: 10, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-            ],
-            }
-        }
-        
-    },
-    methods: {
-      loginSubmit(formName) {
-        this.$refs[formName].validate((valid) => {
-            //只有校验通过才执行函数 
-          if (valid) {
-            checkUser(this.form).then(res => {
-                //将token保存到localStorage里面
-                if(res.meta.status === 200){
-                    localStorage.setItem('mytoken', res.data.token)
-                    this.$router.push({name:'Home'})
-                }else{
-                    this.$message({
-                        type:'error',
-                        message:res.meta.msg
-                    })
-                }
-            })
-          } else {
-            console.log('校验不通过')
-            return false;
-          }
-        });
+  data() {
+    return {
+      form: {
+        username: "",
+        password: ""
       },
+      rules: {
+        username: [
+          { required: true, message: "请输入账号", trigger: "blur" },
+          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
+        ],
+        password: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          { min: 3, max: 10, message: "长度在 3 到 5 个字符", trigger: "blur" }
+        ]
+      }
+    };
+  },
+  methods: {
+    loginSubmit(formName) {
+      this.$refs[formName].validate(valid => {
+        //只有校验通过才执行函数
+        if (valid) {
+          checkUser(this.form).then(res => {
+            //将token保存到localStorage里面
+            if (res.meta.status === 200) {
+              localStorage.setItem("mytoken", res.data.token);
+              this.$store.commit("setUsername", res.data.username);
+              this.$router.push({ name: "Home" });
+            } else {
+              this.$message({
+                type: "error",
+                message: res.meta.msg
+              });
+            }
+          });
+        } else {
+          console.log("校验不通过");
+          return false;
+        }
+      });
+    }
   }
-}
+};
 </script>
 <style lang="scss" scoped>
 .login {
@@ -101,5 +101,5 @@ export default {
       width: 100%;
     }
   }
-}   
+}
 </style>
