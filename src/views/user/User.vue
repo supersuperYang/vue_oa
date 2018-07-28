@@ -46,7 +46,7 @@
     </template>
     <!-- 分页 -->
     <div class="page">
-      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="1" :page-sizes="[10, 20, 30, 40]" :page-size="10" layout="total, sizes, prev, pager, next, jumper" :total="40">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="1" :page-sizes="[3, 6, 9, 12]" :page-size="10" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
   </div>
@@ -59,7 +59,10 @@ export default {
     return {
       username: [],
       value3:true,
-      query:''
+      query:'',
+      pagesize:3,
+      pagenum:1,
+      total:0
     };
   },
   created() {
@@ -67,16 +70,21 @@ export default {
   },
   methods: {
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      console.log(`每页 ${val} 条`)
+      this.pagesize = val
+      this.initList()
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      console.log(`当前页: ${val}`)
+      this.pagenum = val
+      this.initList()
     },
     //初始化表格数据
     initList() {
-      getUserList({ params: { query: this.query, pagenum: 1, pagesize: 3 } }).then(
+      getUserList({ params: { query: this.query, pagenum: this.pagenum, pagesize: this.pagesize } }).then(
         res => {
-          this.username = res.data.users;
+          this.username = res.data.users
+          this.total = res.data.total
         }
       );
     },
