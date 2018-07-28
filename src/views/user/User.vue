@@ -13,8 +13,9 @@
     <!-- 搜索 -->
     <el-row>
       <el-col :span="24">
-        <el-input placeholder="请输入内容" class="search-input">
-          <el-button slot="append" icon="el-icon-search"></el-button>
+        <!-- 给组件绑定原生事件的话，需要绑定.native修饰符 -->
+        <el-input placeholder="请输入内容" class="search-input" v-model="query"  @keydown.native.enter="initList">
+          <el-button slot="append" icon="el-icon-search" @click="initList"></el-button>
         </el-input>
         <el-button type="success" plain>添加用户</el-button>
       </el-col>
@@ -57,7 +58,8 @@ export default {
   data() {
     return {
       username: [],
-      value3:true
+      value3:true,
+      query:''
     };
   },
   created() {
@@ -72,12 +74,12 @@ export default {
     },
     //初始化表格数据
     initList() {
-      getUserList({ params: { query: "", pagenum: 1, pagesize: 3 } }).then(
+      getUserList({ params: { query: this.query, pagenum: 1, pagesize: 3 } }).then(
         res => {
           this.username = res.data.users;
         }
       );
-    }
+    },
   }
 };
 </script>
