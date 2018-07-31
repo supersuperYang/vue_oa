@@ -38,7 +38,7 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" plain icon="el-icon-edit" @click="getUser(scope.row)"></el-button>
-            <el-button size="mini" type="danger" plain icon="el-icon-delete"></el-button>
+            <el-button size="mini" type="danger" plain icon="el-icon-delete" @click="showDeleteUser(scope.row)"></el-button>
             <el-button size="mini" type="warning" plain icon="el-icon-check"></el-button>
           </template>
         </el-table-column>
@@ -76,7 +76,7 @@
     <el-dialog title="修改用户" :visible.sync="editDialogFormVisible">
       <el-form :model="editForm" label-width="80px" :rules="rules" ref="editUserForm">
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="editForm.username" auto-complete="off"  :disabled="true"></el-input>
+          <el-input v-model="editForm.username" auto-complete="off" :disabled="true"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="editForm.email" auto-complete="off"></el-input>
@@ -94,7 +94,14 @@
 </template>
            
 <script>
-import { getUserList, changeUserState, addUser,getUserById,editUser } from "@/api";
+import {
+  getUserList,
+  changeUserState,
+  addUser,
+  getUserById,
+  editUser,
+  deleteUser
+} from "@/api";
 export default {
   data() {
     return {
@@ -110,12 +117,12 @@ export default {
         email: "",
         mobile: ""
       },
-      editDialogFormVisible:false,
+      editDialogFormVisible: false,
       editForm: {
         username: "",
         email: "",
         mobile: "",
-        id:0
+        id: 0
       },
       rules: {
         username: [
@@ -197,34 +204,60 @@ export default {
     },
     //编辑用户
     getUser(row) {
-      this.editDialogFormVisible = true
-      getUserById(row.id).then(res =>{
-        if(res.meta.status === 200){
-          this.editForm.username = res.data.username
-          this.editForm.email = res.data.email 
-          this.editForm.mobile = res.data.mobile
-          this.editForm.id = res.data.id
+      this.editDialogFormVisible = true;
+      getUserById(row.id).then(res => {
+        if (res.meta.status === 200) {
+          this.editForm.username = res.data.username;
+          this.editForm.email = res.data.email;
+          this.editForm.mobile = res.data.mobile;
+          this.editForm.id = res.data.id;
         }
-      })
+      });
     },
     //修改用户
-    editUserSubmit(formName){
-      this.$refs[formName].validate(valide =>{
-        if(valide){
+    editUserSubmit(formName) {
+      this.$refs[formName].validate(valide => {
+        if (valide) {
           editUser(this.editForm).then(res => {
             console.log(res);
-            if(res.meta.status === 200){
+            if (res.meta.status === 200) {
               this.$message({
-                type:'success',
-                message:'编辑成功'
-              })
+                type: "success",
+                message: "编辑成功"
+              });
             }
-            this.editDialogFormVisible = false
-            this.initList()
-          })
+            this.editDialogFormVisible = false;
+            this.initList();
+          });
         }
+      });
+    },
+    //显示删除对话框
+    showDeleteUser(row) {
+      this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
       })
-    } 
+        .then(() => {
+          //执行删除用户操作
+          deleteUser(row.id).then(res => {
+            if (res.meta.status === 200) {
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              })
+              this.initList()
+            }
+          })
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          })
+        })
+    }
   }
 };
 </script>
