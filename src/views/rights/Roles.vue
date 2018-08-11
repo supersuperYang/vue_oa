@@ -61,7 +61,7 @@
               <template slot-scope="scope">
                   <el-button size="mini" type="primary" plain icon="el-icon-edit"></el-button>
                   <el-button size="mini" type="danger" plain icon="el-icon-delete"></el-button>
-                  <el-button size="mini" type="warning" plain icon="el-icon-check" title="授权角色" @click="showDialog"></el-button>
+                  <el-button size="mini" type="warning" plain icon="el-icon-check" title="授权角色" @click="showDialog(scope.row)"></el-button>
               </template>
           </el-table-column>
         </el-table>
@@ -69,14 +69,16 @@
 
       <!-- 弹窗 -->
       <el-dialog title="授权角色" :visible.sync="dialogFormVisible">
-        <el-tree
-          :data="data2"
-          show-checkbox
-          node-key="id"
-          :default-expand-all="true"
-          :default-checked-keys="[5]"
-          :props="defaultProps">
-        </el-tree>
+        <div class="tree-container">
+          <el-tree
+            :data="rightList"
+            show-checkbox
+            node-key="id"
+            :default-expand-all="true"
+            :default-checked-keys="selectedRights"
+            :props="defaultProps">
+          </el-tree>
+        </div>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
           <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
@@ -93,12 +95,14 @@ export default {
     return {
       roleList: [],
       dialogFormVisible: false,
-      data2: [],
+      rightList: [],
       defaultProps: {
         children: "children",
         label: "authName"
-      }
-    };
+      },
+      selectedRights:[],
+      currentRole:{}
+    }
   },
   created() {
     getRoleList().then(res => {
@@ -121,12 +125,12 @@ export default {
         }
       });
     },
-    showDialog() {
+    showDialog(row) {
       this.dialogFormVisible = true
+      this.currentRole = row
       getRightList({type:'tree'}).then(res => {
-        console.log(res)
         if(res.meta.status === 200){
-          this.data2 = res.data
+          this.rightList = res.data
         }else{
           this.$message({
             type:'error',
@@ -134,9 +138,33 @@ export default {
           })
         }
       })
+      //遍历之前 显然数组清空
+      this.selectedRights.length = 0
+      // 取除当前点击角色的所有权限，然后遍历到它的第三个children，取除它里面所有项的id 放进selectedRights中
+      this.currentRole.children.forEach(first => {
+        if(first.children && first.children.length !== 0 ){
+          first.children.forEach(second => {
+            if(second.children && second.children.length !== 0){
+              second.children.forEach(third => {
+                this.selectedRights.push(third.id)
+              })
+            }
+          })
+        }
+      })
     }
   }
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+.roles{
+  .el-tag{
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+  .tree-container{
+    height: 300px;
+    overflow: auto;
+  }
+}
 </style>
