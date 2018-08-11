@@ -24,22 +24,25 @@
             <template slot-scope="scope">
               <el-row v-for="firstChildren in scope.row.children" :key="firstChildren.id">
                 <el-col :span="4">
-                  <el-tag closable>{{firstChildren.authName}}</el-tag>
+                  <el-tag closable @close="deleteRight(scope.row,firstChildren.id)">{{firstChildren.authName}}</el-tag>
                   <i class="el-icon-arrow-right" v-if="firstChildren.children.length !==0"></i>
                 </el-col>
                 <el-col :span="20">
                   <el-row v-for="secondChildren in firstChildren.children" :key="secondChildren.id">
                     <el-col :span="5">
-                      <el-tag closable type="success">{{secondChildren.authName}}</el-tag>
+                      <el-tag closable @close="deleteRight(scope.row,secondChildren.id)" type="success">{{secondChildren.authName}}</el-tag>
                       <i class="el-icon-arrow-right" v-if="secondChildren.children.length !==0"></i>
                     </el-col>
                     <el-col :span="19">
-                      <el-tag closable type="warning"  v-for="thirdChildren in secondChildren.children" :key="thirdChildren.id">
+                      <el-tag closable @close="deleteRight(scope.row,thirdChildren.id)" type="warning"  v-for="thirdChildren in secondChildren.children" :key="thirdChildren.id">
                         {{thirdChildren.authName}}
                       </el-tag>
                     </el-col>
                   </el-row>
                 </el-col>
+              </el-row>
+              <el-row v-if="scope.row.children.length === 0">
+                <el-col :span="24">该角色没有分配权限，请前往分配！</el-col>
               </el-row>
             </template>
           </el-table-column>
@@ -68,7 +71,7 @@
 </template>
            
 <script>
-import { getRoleList } from "@/api";
+import { getRoleList, deleteRoleRight } from "@/api";
 export default {
   data() {
     return {
@@ -77,11 +80,26 @@ export default {
   },
   created() {
     getRoleList().then(res => {
-      console.log(res);
+      // console.log(res);
       if (res.meta.status === 200) {
         this.roleList = res.data;
       }
-    });
+    })
+  },
+  methods: {
+    deleteRight(row, rightId){
+      // console.log(roleId , rightId);
+      deleteRoleRight({roleId:row.id, rightId:rightId}).then(res =>{
+        if(res.meta.status === 200){
+          row.children = res.data
+        }else{
+          this.$message({
+            type:'error',
+            message:res.meta.msg
+          })
+        }
+      })
+    }
   }
 };
 </script>
