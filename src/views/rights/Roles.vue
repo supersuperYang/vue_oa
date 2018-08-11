@@ -74,6 +74,7 @@
             :data="rightList"
             show-checkbox
             node-key="id"
+            ref="tree"
             :default-expand-all="true"
             :default-checked-keys="selectedRights"
             :props="defaultProps">
@@ -81,7 +82,7 @@
         </div>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+          <el-button type="primary" @click="submitGrant">确 定</el-button>
         </div>
       </el-dialog>
 
@@ -89,7 +90,7 @@
 </template>
            
 <script>
-import { getRoleList, deleteRoleRight, getRightList } from "@/api";
+import { getRoleList, deleteRoleRight, getRightList, grantRoleRight } from "@/api";
 export default {
   data() {
     return {
@@ -105,11 +106,7 @@ export default {
     }
   },
   created() {
-    getRoleList().then(res => {
-      if (res.meta.status === 200) {
-        this.roleList = res.data;
-      }
-    });
+    this.initList()
   },
   methods: {
     deleteRight(row, rightId) {
@@ -150,6 +147,27 @@ export default {
               })
             }
           })
+        }
+      })
+    },
+    submitGrant(){
+      let rids = this.$refs.tree.getCheckedKeys().join(',')
+      grantRoleRight(this.currentRole.id,{rids:rids}).then(res =>{
+        if(res.meta.status === 200){
+          console.log(1);
+          this.$message({
+            type:'success',
+            message:res.meta.msg
+          })
+          this.dialogFormVisible = false
+        }
+      })
+      this.initList()
+    },
+    initList(){
+      getRoleList().then(res => {
+        if(res.meta.status === 200){
+          this.roleList = res.data
         }
       })
     }
