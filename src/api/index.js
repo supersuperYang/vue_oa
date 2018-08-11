@@ -73,3 +73,8 @@ export const deleteRoleRight = params => {
 export const grantRoleRight = (roleId, rids)=>{
     return axios.post(`roles/${roleId}/rights`,rids).then(res => res.data)
 }
+
+//左侧菜单权限
+export const getMenus = () =>{
+    return axios.get('menus').then(res => res.data)
+}
