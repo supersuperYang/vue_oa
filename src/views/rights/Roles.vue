@@ -61,37 +61,72 @@
               <template slot-scope="scope">
                   <el-button size="mini" type="primary" plain icon="el-icon-edit"></el-button>
                   <el-button size="mini" type="danger" plain icon="el-icon-delete"></el-button>
-                  <el-button size="mini" type="warning" plain icon="el-icon-check" ></el-button>
+                  <el-button size="mini" type="warning" plain icon="el-icon-check" title="授权角色" @click="showDialog"></el-button>
               </template>
           </el-table-column>
         </el-table>
       </template>
 
+      <!-- 弹窗 -->
+      <el-dialog title="授权角色" :visible.sync="dialogFormVisible">
+        <el-tree
+          :data="data2"
+          show-checkbox
+          node-key="id"
+          :default-expand-all="true"
+          :default-checked-keys="[5]"
+          :props="defaultProps">
+        </el-tree>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        </div>
+      </el-dialog>
+
     </div>
 </template>
            
 <script>
-import { getRoleList, deleteRoleRight } from "@/api";
+import { getRoleList, deleteRoleRight, getRightList } from "@/api";
 export default {
   data() {
     return {
-      roleList: []
+      roleList: [],
+      dialogFormVisible: false,
+      data2: [],
+      defaultProps: {
+        children: "children",
+        label: "authName"
+      }
     };
   },
   created() {
     getRoleList().then(res => {
-      // console.log(res);
       if (res.meta.status === 200) {
         this.roleList = res.data;
       }
-    })
+    });
   },
   methods: {
-    deleteRight(row, rightId){
+    deleteRight(row, rightId) {
       // console.log(roleId , rightId);
-      deleteRoleRight({roleId:row.id, rightId:rightId}).then(res =>{
+      deleteRoleRight({ roleId: row.id, rightId: rightId }).then(res => {
+        if (res.meta.status === 200) {
+          row.children = res.data;
+        } else {
+          this.$message({
+            type: "error",
+            message: res.meta.msg
+          });
+        }
+      });
+    },
+    showDialog() {
+      this.dialogFormVisible = true
+      getRightList({type:'tree'}).then(res => {
+        console.log(res)
         if(res.meta.status === 200){
-          row.children = res.data
+          this.data2 = res.data
         }else{
           this.$message({
             type:'error',
